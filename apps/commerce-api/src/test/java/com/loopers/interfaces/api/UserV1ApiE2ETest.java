@@ -33,12 +33,21 @@ public class UserV1ApiE2ETest {
         @DisplayName("회원 가입이 성공할 경우, 생성된 유저 정보를 응답으로 반환한다.")
         @Test
         void returnsCreatedUserInfo_whenRegistrationIsSuccessful() {
+            UserV1Dto.UserRequest request  = new UserV1Dto.UserRequest(
+                    "testUser",
+                    "password123",
+                    "Test User",
+                    "test@naver.com",
+                    "m",
+                    "010-1234-5678"
+            );
              ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {};
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
-                    testRestTemplate.exchange("/api/v1/users", HttpMethod.POST, new HttpEntity<>(null),responseType);
+                    testRestTemplate.exchange("/api/v1/users", HttpMethod.POST, new HttpEntity<>(request),responseType);
             System.out.println(response.getBody());
             assertAll(
-                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK)
+                    () -> assertNull(response)
+//                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK)
             );
         }
     }
