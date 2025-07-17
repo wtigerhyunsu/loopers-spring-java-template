@@ -115,7 +115,24 @@ public class UserV1ApiE2ETest {
             ParameterizedTypeReference<ApiResponse<UserV1Dto.SignUpResponse>> responseType = new ParameterizedTypeReference<>() {};
             ResponseEntity<ApiResponse<UserV1Dto.SignUpResponse>> response =
                     testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, entity, responseType);
-            System.out.println(response.getStatusCode());
+            // assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
+            );
+        }
+
+        @DisplayName("사용자 정보를 조회할 때, X-USER-ID 헤더가 없으면 `400 Bad Request` 응답을 반환한다.")
+        @Test
+        void returnsBadRequest_whenUserIdHeaderIsMissing() {
+            // arrange
+            HttpHeaders headers = new HttpHeaders();
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            // act
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.SignUpResponse>> responseType = new ParameterizedTypeReference<>() {};
+            ResponseEntity<ApiResponse<UserV1Dto.SignUpResponse>> response =
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, entity, responseType);
+
             // assert
             assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
