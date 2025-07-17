@@ -3,7 +3,10 @@ package com.loopers.domain.user;
 import com.loopers.interfaces.api.user.UserV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class UserService {
@@ -22,5 +25,9 @@ public class UserService {
     }
     public boolean isLoginIdExists(String loginId) {
         return userRepository.existsByLoginId(loginId);
+    }
+
+    public Optional<UserModel> findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId);
     }
 }

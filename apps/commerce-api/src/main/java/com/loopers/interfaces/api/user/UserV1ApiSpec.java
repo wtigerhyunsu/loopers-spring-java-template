@@ -21,6 +21,6 @@ public interface UserV1ApiSpec {
         description = "사용자의 정보를 조회합니다. 성공 시 사용자 정보를 반환합니다."
     )
     ApiResponse<UserV1Dto.GetMeResponse> getMe(
-            @RequestHeader("X-USER-ID") String userId
+            String userId
     );
 }

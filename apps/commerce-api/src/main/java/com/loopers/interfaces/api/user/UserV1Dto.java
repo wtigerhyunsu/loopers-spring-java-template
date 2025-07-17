@@ -32,8 +32,20 @@ public class UserV1Dto {
         }
     }
     public record GetMeResponse(
-            String loginId
-    ) {}
+            String loginId,
+            String email,
+            String birth,
+            GenderResponse gender
+    ) {
+        public static GetMeResponse from(UserCommand.UserInfo userInfo) {
+            return new GetMeResponse(
+                    userInfo.loginId(),
+                    userInfo.email(),
+                    userInfo.birth(),
+                    GenderResponse.valueOf(userInfo.gender().name())
+            );
+        }
+    }
     public enum GenderResponse {
         M,
         F

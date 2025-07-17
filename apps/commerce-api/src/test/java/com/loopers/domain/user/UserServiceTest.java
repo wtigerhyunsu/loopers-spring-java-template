@@ -1,5 +1,6 @@
 package com.loopers.domain.user;
 
+import com.loopers.application.user.UserCommand;
 import com.loopers.application.user.UserFacade;
 import com.loopers.interfaces.api.user.UserV1Dto;
 import com.loopers.support.error.CoreException;
@@ -50,6 +51,43 @@ public class UserServiceTest {
             //assert
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
+        
+        @DisplayName("해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다.")
+        @Test
+        void returnsUserInfo_whenUserExists() {
+            // arrange
+            String loginId = "test123";
+            String email = "test@test.net";
+            String birth = "2000-08-04";
+            String grender = "M"; // 성별 M
+            UserModel userModel = new UserModel(loginId, email, birth, grender);
+
+            userRepository.save(userModel);
+            
+            // act
+            UserCommand.UserInfo userInfo = userFacade.getUserById(userModel.getLoginId());
+            
+            // assert
+            assertThat(userInfo).isNotNull();
+            assertThat(userInfo.loginId()).isEqualTo(loginId);
+            assertThat(userInfo.email()).isEqualTo(email);
+            assertThat(userInfo.birth()).isEqualTo(birth);
+            assertThat(userInfo.gender()).isEqualTo(UserCommand.Gender.M);
+        }
+
+        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우,  null 이 반환된다.")
+        @Test
+        void throwsException_whenUserDoesNotExist() {
+            // arrange
+            String nonExistentLoginId = "nonExistent123";
+
+            // act
+            UserCommand.UserInfo info = userFacade.getUserById(nonExistentLoginId);
+
+            // assert
+            assertThat(info).isNull();
+        }
+
     }
 
 

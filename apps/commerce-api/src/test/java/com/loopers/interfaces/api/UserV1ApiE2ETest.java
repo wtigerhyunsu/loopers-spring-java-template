@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api;
 
+import com.loopers.domain.user.UserModel;
 import com.loopers.interfaces.api.user.UserV1Dto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -81,7 +82,8 @@ public class UserV1ApiE2ETest {
         @Test
         void returnsUserInfo_whenValidUserIdIsProvided() {
             // arrange
-            String userId = "TestUserId";
+            String userId = "admin";
+
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", userId );
 

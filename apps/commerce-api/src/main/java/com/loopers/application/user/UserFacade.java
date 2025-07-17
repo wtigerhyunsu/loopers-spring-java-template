@@ -7,6 +7,8 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class UserFacade {
     private final UserService userService;
@@ -31,5 +33,13 @@ public class UserFacade {
         );
         UserModel saved = userService.save(user);
         return UserCommand.UserInfo.from(saved);
+    }
+    public UserCommand.UserInfo getUserById(String userId) {
+        if(userId == null || userId.isBlank()) {
+            return null;
+        }
+        return userService.findByLoginId(userId)
+                .map(UserCommand.UserInfo::from)
+                .orElse(null);
     }
 }

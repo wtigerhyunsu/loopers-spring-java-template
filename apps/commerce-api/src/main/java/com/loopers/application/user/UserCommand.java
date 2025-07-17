@@ -3,6 +3,7 @@ package com.loopers.application.user;
 import com.loopers.domain.user.UserModel;
 import com.loopers.interfaces.api.user.UserV1Dto;
 
+
 public class UserCommand {
     public record SignUp(
             String loginId,

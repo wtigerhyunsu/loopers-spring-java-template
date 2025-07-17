@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserV1Controller implements UserV1ApiSpec{
@@ -30,15 +32,16 @@ public class UserV1Controller implements UserV1ApiSpec{
     @Override
     @GetMapping(value = "/me")
     public ApiResponse<UserV1Dto.GetMeResponse> getMe(
-            @NotNull @NotBlank @RequestHeader("X-USER-ID") String userId) {
-        String loginId = "TestUserId";
-        if(!loginId.equals(userId)){
-            throw new CoreException(ErrorType.BAD_REQUEST,"아이디가 일치하지않아요");// 예시로 고정된 값 사용
-        }
+            @RequestHeader("X-USER-ID") String userId) {
+       UserV1Dto.GetMeResponse response =
+               UserV1Dto.GetMeResponse.from(
+                       Optional.ofNullable(
+                               userFacade.getUserById(userId)
+                               ).orElseThrow(
+                                 () -> new CoreException(ErrorType.BAD_REQUEST, "사용자를 찾을 수 없습니다.")
+                       ));
         return ApiResponse.success(
-                new UserV1Dto.GetMeResponse(
-                        userId
-                )
+                response
         );
 
     }
