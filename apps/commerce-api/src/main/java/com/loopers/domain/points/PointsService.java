@@ -33,4 +33,16 @@ public class PointsService {
         }
         return pointsRepository.findByLoginId(loginId).orElse(null);
     }
+
+    public PointsModel chargePoints(String loginId, BigDecimal chargeAmount) {
+        if (chargeAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "충전 금액은 0보다 커야 합니다.");
+        }
+        PointsModel currentPoints = getByLoginId(loginId);
+        
+        BigDecimal newAmount = currentPoints.getAmount().add(chargeAmount);
+        
+        PointsModel updatedPoints = new PointsModel(loginId, newAmount);
+        return save(updatedPoints);
+    }
 }

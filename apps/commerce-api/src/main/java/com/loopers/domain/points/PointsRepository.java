@@ -3,6 +3,7 @@ package com.loopers.domain.points;
 import com.loopers.domain.user.UserModel;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PointsRepository {
 
     private static final Map<String, PointsModel> db = new ConcurrentHashMap<>();
+
+    public PointsRepository() {
+        PointsModel initialPoints = new PointsModel("admin", BigDecimal.ZERO);
+        db.put(initialPoints.getUserId(), initialPoints);
+    }
 
     public PointsModel save(PointsModel pointsModel) {
         db.put(pointsModel.getUserId(), pointsModel);

@@ -18,8 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.UserModel;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PointsV1ApiE2RTest {
     private final TestRestTemplate testRestTemplate;
     
@@ -65,7 +69,7 @@ public class PointsV1ApiE2RTest {
             assertAll(
                     ()-> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue(),
                     ()-> assertThat(response.getBody()).isNotNull(),
-                    ()-> assertThat(response.getBody().data().amount()).isEqualTo("0")
+                    ()-> assertThat(response.getBody().data().amount()).isEqualTo(new BigDecimal("1000.00"))
             );
         }
         @DisplayName("X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다.")
@@ -97,10 +101,11 @@ public class PointsV1ApiE2RTest {
         void returnsPoints_whenPointRetrievalIsSuccessful() {
             // arrange
             String userId = "admin";
+            String points = "1000.00";
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", userId );
-            PointsV1Dto.PointsRequest pointsV1Request = new PointsV1Dto.PointsRequest(new BigDecimal("1000.00"));
+            PointsV1Dto.PointsRequest pointsV1Request = new PointsV1Dto.PointsRequest(new BigDecimal(points));
 
             HttpEntity<PointsV1Dto.PointsRequest> entity = new HttpEntity<>(pointsV1Request, headers);
 
@@ -113,7 +118,7 @@ public class PointsV1ApiE2RTest {
             assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody()).isNotNull(),
-                    () -> assertThat(response.getBody().data().amount()).isEqualTo("1000.00")
+                    () -> assertThat(response.getBody().data().amount()).isEqualTo(points)
             );
         }
         @DisplayName("존재하지 않는 유저로 요청할 경우, 404 Not Found 응답을 반환한다.")
