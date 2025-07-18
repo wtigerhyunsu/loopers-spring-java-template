@@ -138,6 +138,25 @@ public class UserV1ApiE2ETest {
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
             );
         }
+        @DisplayName("존재하지 않는 ID 로 조회할 경우, 404 Not Found 응답을 반환한다.")
+        @Test
+        void returnsNotFound_whenUserDoesNotExist() {
+            // arrange
+            String userId = "amdin123";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-USER-ID", userId );
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            // act
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.SignUpResponse>> responseType = new ParameterizedTypeReference<>() {};
+            ResponseEntity<ApiResponse<UserV1Dto.SignUpResponse>> response =
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, entity, responseType);
+
+            // assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
+            );
+        }
     }
 
 
