@@ -31,6 +31,95 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+# Feign 클라이언트 설정
+feign:
+  # 클라이언트별 설정
+  client:
+    config:
+      # 기본 설정 (5s/10s 타임아웃, 3회 재시도)
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: BASIC
+        retryer: feign.Retryer$Default
+
+      # PG 시뮬레이터 전용 설정 (10s/30s 타임아웃, 2회 재시도)
+      payment-gateway:
+        connectTimeout: 10000
+        readTimeout: 30000
+        loggerLevel: FULL
+        retryer: feign.Retryer$Default
+
+  # 서킷 브레이커 설정
+  circuitbreaker:
+    enabled: true
+
+  # 압축 설정
+  compression:
+    request:
+      enabled: true
+      mime-types: application/json,application/xml
+      min-request-size: 2048
+    response:
+      enabled: true
+
+# 외부 서비스 설정
+external:
+  loopers:
+    url: http://localhost:8082/api/v1/payments
+    circuit-breaker-enabled: true
+    failure-rate-threshold: 50
+    minimum-number-of-calls: 5
+    wait-duration-in-open-state: 30
+
+# Resilience4j 설정
+resilience4j:
+  circuitbreaker:
+    instances:
+      payment-gateway:
+        failure-rate-threshold: 80
+
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 10s
+
+        minimum-number-of-calls: 15
+        sliding-window-size: 30
+
+        wait-duration-in-open-state: 60s
+
+        permitted-number-of-calls-in-half-open-state: 5
+
+  retry:
+    instances:
+      payment-gateway:
+        max-attempts: 1
+        wait-duration: 0s
+
+        retry-exceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+
+        ignore-exceptions:
+          - com.loopers.support.error.CoreException
+
+  timelimiter:
+    instances:
+      payment-gateway:
+        timeout-duration: 7s
+
+  bulkhead:
+    instances:
+      payment-gateway:
+        max-concurrent-calls: 5
+        max-wait-duration: 2s
+
+# 로깅 설정
+logging:
+  level:
+    com.loopers.client: INFO
+    com.loopers.config.feign: DEBUG
+    org.springframework.cloud.openfeign: DEBUG
+
 ---
 spring:
   config:

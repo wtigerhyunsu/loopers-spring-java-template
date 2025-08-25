@@ -8,7 +8,7 @@ dependencies {
     implementation("org.springframework:spring-web")
     
     // Spring Cloud OpenFeign
-    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    api("org.springframework.cloud:spring-cloud-starter-openfeign")
     
     // Jackson (JSON 직렬화/역직렬화)
     implementation("com.fasterxml.jackson.core:jackson-core")
@@ -20,8 +20,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-logging")
     
     // Resilience4j (재시도, 서킷브레이커)
-    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-    implementation("io.github.resilience4j:resilience4j-spring-boot3")
+    api("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
+    api("io.github.resilience4j:resilience4j-spring-boot3")
     implementation("io.github.resilience4j:resilience4j-feign")
     
     // Validation
