@@ -36,9 +36,9 @@ public class ProductStatus {
     }
 
     public enum Status {
-        ACTIVE,
-        OUT_OF_STOCK,
-        DISCONTINUED;
+        ACTIVE, //
+        OUT_OF_STOCK, // 재고 없음
+        DISCONTINUED; // 단종
 
         public static Status from(String status) {
             if (status == null) return null;

@@ -16,7 +16,6 @@ public class ProductV1Dto {
             SortType sortType = SortType.from(sort);
             return new Request(brandId, sortType, page, size);
         }
-
     }
     
     public enum SortType {
@@ -70,7 +69,7 @@ public class ProductV1Dto {
             String imgUrl,
             BigDecimal likeCount,
             String status,
-            BigDecimal stock
+            int stock
     ) {
         public static ProductItem from(ProductCommand.ProductItem productCommandItem) {
             return new ProductItem(

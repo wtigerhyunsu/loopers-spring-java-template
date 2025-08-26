@@ -24,16 +24,16 @@ public class ProductSnapshot {
     
     protected ProductSnapshot() {}
     
-    private ProductSnapshot(String productName, String optionName, String imageUrl, BigDecimal priceAtOrder) {
+    private ProductSnapshot(String productName, String imageUrl, BigDecimal priceAtOrder) {
         this.productName = productName;
         this.optionName = optionName;
         this.imageUrl = imageUrl;
         this.priceAtOrder = priceAtOrder;
     }
     
-    public static ProductSnapshot of(String productName, String optionName, String imageUrl, BigDecimal priceAtOrder) {
+    public static ProductSnapshot of(String productName, String imageUrl, BigDecimal priceAtOrder) {
         validateSnapshot(productName, priceAtOrder);
-        return new ProductSnapshot(productName, optionName, imageUrl, priceAtOrder);
+        return new ProductSnapshot(productName, imageUrl, priceAtOrder);
     }
     
     private static void validateSnapshot(String productName, BigDecimal priceAtOrder) {

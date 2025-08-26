@@ -42,7 +42,7 @@ public class ProductLikeCommand {
             String imgUrl,
             BigDecimal likeCount,
             String status,
-            BigDecimal stock,
+            int stock,
             LocalDateTime likedAt
     ) {
         public static LikedProductItem of(ProductLikeModel productLike, ProductModel product, String brandName) {

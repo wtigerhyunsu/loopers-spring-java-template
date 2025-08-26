@@ -47,7 +47,7 @@ public class ProductLikeV1Dto {
             String imgUrl,
             BigDecimal likeCount,
             String status,
-            BigDecimal stock,
+            int stock,
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime likedAt
     ) {

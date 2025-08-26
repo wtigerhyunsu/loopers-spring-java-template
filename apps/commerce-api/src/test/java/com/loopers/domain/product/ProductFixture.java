@@ -6,7 +6,7 @@ public class ProductFixture {
 
     public static final String PRODUCT_NAME = "Test Product";
     public static final Long PRODUCT_BRAND_ID = 1L;
-    public static final BigDecimal PRODUCT_STOCK = new BigDecimal("100");
+    public static final int PRODUCT_STOCK = 100;
     public static final BigDecimal PRODUCT_PRICE = new BigDecimal("10000");
     public static final String PRODUCT_DESCRIPTION = "Test Description";
     public static final String PRODUCT_IMG_URL = "http://example.com/image.jpg";
@@ -25,7 +25,7 @@ public class ProductFixture {
                 PRODUCT_LIKE_COUNT
                 );
     }
-    public static ProductModel createProductModel(String name, Long brandId, BigDecimal stock, BigDecimal price, String description, String imgUrl, String status, BigDecimal likeCount) {
+    public static ProductModel createProductModel(String name, Long brandId, int stock, BigDecimal price, String description, String imgUrl, String status, BigDecimal likeCount) {
         return ProductModel.register(name, brandId, stock, price,  description, imgUrl, status, likeCount);
     }
     public static ProductModel createProductWithName(String name){
@@ -37,7 +37,7 @@ public class ProductFixture {
     public static ProductModel createProductWithPrice(BigDecimal price){
         return createProductModel(PRODUCT_NAME, PRODUCT_BRAND_ID, PRODUCT_STOCK, price, PRODUCT_DESCRIPTION,PRODUCT_IMG_URL,PRODUCT_STATUS,PRODUCT_LIKE_COUNT);
     }
-    public static ProductModel createProductWithStock(BigDecimal stock){
+    public static ProductModel createProductWithStock(int stock){
         return createProductModel(PRODUCT_NAME, PRODUCT_BRAND_ID, stock, PRODUCT_PRICE, PRODUCT_DESCRIPTION,PRODUCT_IMG_URL,PRODUCT_STATUS,PRODUCT_LIKE_COUNT);
     }
     public static ProductModel createProductWithDescription(String description){

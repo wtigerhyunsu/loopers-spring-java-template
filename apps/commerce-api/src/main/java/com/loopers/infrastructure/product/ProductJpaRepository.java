@@ -17,4 +17,6 @@ public interface ProductJpaRepository extends JpaRepository<ProductModel, Long> 
     Optional<ProductModel> findByIdForUpdate(@Param("id") Long id);
     
     List<ProductModel> findByIdIn(List<Long> productIds);
+
+    Optional<ProductModel> findByIdAndStatus(Long productModelId, String active);
 }

@@ -33,7 +33,7 @@ public class ProductCommand {
                 String imgUrl,
                 BigDecimal likeCount,
                 String status,
-                BigDecimal stock
+                int stock
         ){
             public static ProductItem of(ProductModel productModel, BrandModel brandModel) {
                 return new ProductItem(

@@ -26,7 +26,36 @@ public class ProductRepositoryImpl implements ProductRepository {
         this.productJpaRepository = productJpaRepository;
     }
     @Override
-    public Page<ProductModel> search(Long brandId, String sort, int page, int size) {
+    public Page<ProductModel> search( String sort, int page, int size) {
+        QProductModel product = QProductModel.productModel;
+
+        BooleanBuilder builder = new BooleanBuilder();
+        // 정렬 기준
+        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(product, sort);
+        // 페이징
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<ProductModel> content = queryFactory
+                .selectFrom(product)
+                .where(builder)
+                .orderBy(orderSpecifier)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long totalCount = queryFactory
+                .select(product.count())
+                .from(product)
+                .where(builder)
+                .fetchOne();
+        
+        long total = totalCount != null ? totalCount : 0L;
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public Page<ProductModel> searchByBrandId(Long brandId, String sort, int page, int size) {
         QProductModel product = QProductModel.productModel;
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -51,7 +80,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 .from(product)
                 .where(builder)
                 .fetchOne();
-        
+
         long total = totalCount != null ? totalCount : 0L;
 
         return new PageImpl<>(content, pageable, total);
@@ -85,6 +114,11 @@ public class ProductRepositoryImpl implements ProductRepository {
             return List.of();
         }
         return productJpaRepository.findByIdIn(productIds);
+    }
+
+    @Override
+    public Optional<ProductModel> findByIdAndActive(Long productModelId) {
+        return productJpaRepository.findByIdAndStatus(productModelId, "active");
     }
 
     private OrderSpecifier<?> getOrderSpecifier(QProductModel product, String sort) {

@@ -137,9 +137,9 @@ class ProductFacadeIntegrationTest {
             BrandModel brandModel = BrandFixture.createBrandModel();
             BrandModel savedBrand = brandRepository.save(brandModel);
 
-            ProductModel productModel = ProductFixture.createProductModel("Product1", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("99999"), "Description1", "url1", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel = ProductFixture.createProductModel("Product1", savedBrand.getId(), 100, new BigDecimal("99999"), "Description1", "url1", "ACTIVE", new BigDecimal("0"));
             productRepository.save(productModel);
-            ProductModel productModel1 = ProductFixture.createProductModel("Product2", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("88888"), "Description2", "url2", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel1 = ProductFixture.createProductModel("Product2", savedBrand.getId(), 100, new BigDecimal("88888"), "Description2", "url2", "ACTIVE", new BigDecimal("0"));
             productRepository.save(productModel1);
             ProductCommand.Request.GetList request = new ProductCommand.Request.GetList(null, "price_asc", 0, 5);
 
@@ -187,11 +187,11 @@ class ProductFacadeIntegrationTest {
             BrandModel brandModel = BrandFixture.createBrandModel();
             BrandModel savedBrand = brandRepository.save(brandModel);
 
-            ProductModel productModel = ProductFixture.createProductModel("one", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel = ProductFixture.createProductModel("one", savedBrand.getId(), 100, new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
             productRepository.save(productModel);
-            ProductModel productModel1 = ProductFixture.createProductModel("two", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel1 = ProductFixture.createProductModel("two", savedBrand.getId(), 100, new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
             productRepository.save(productModel1);
-            ProductModel productModel2 = ProductFixture.createProductModel("three", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel2 = ProductFixture.createProductModel("three", savedBrand.getId(), 100, new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
             productRepository.save(productModel2);
 
             ProductCommand.Request.GetList request = new ProductCommand.Request.GetList(null, "latest", 0, 10);
@@ -218,17 +218,17 @@ class ProductFacadeIntegrationTest {
             BrandModel brandModel = BrandFixture.createBrandModel();
             BrandModel savedBrand = brandRepository.save(brandModel);
 
-            ProductModel productModel = ProductFixture.createProductModel("one", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel = ProductFixture.createProductModel("one", savedBrand.getId(), 100, new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
             productModel.incrementLikeCount();
             productRepository.save(productModel);
 
-            ProductModel productModel1 = ProductFixture.createProductModel("two", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel1 = ProductFixture.createProductModel("two", savedBrand.getId(), 100, new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
             productModel1.incrementLikeCount();
             productModel1.incrementLikeCount();
             productModel1.incrementLikeCount();
             productRepository.save(productModel1);
 
-            ProductModel productModel2 = ProductFixture.createProductModel("three", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel2 = ProductFixture.createProductModel("three", savedBrand.getId(), 100, new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
             productModel2.incrementLikeCount();
             productModel2.incrementLikeCount();
             productRepository.save(productModel2);
@@ -258,7 +258,7 @@ class ProductFacadeIntegrationTest {
             BrandModel brandModel = BrandFixture.createBrandModel();
             BrandModel savedBrand = brandRepository.save(brandModel);
 
-            ProductModel productModel = ProductFixture.createProductModel("the Rad", savedBrand.getId(), new BigDecimal("100"), new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
+            ProductModel productModel = ProductFixture.createProductModel("the Rad", savedBrand.getId(), 100, new BigDecimal("10000"), "Description", "url", "ACTIVE", new BigDecimal("0"));
             ProductModel saveProduct = productRepository.save(productModel);
             // act
             ProductCommand.ProductItem result = productFacade.getProduct(saveProduct.getId());

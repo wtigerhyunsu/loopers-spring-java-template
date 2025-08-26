@@ -125,7 +125,7 @@ class ProductLikeSyncTest {
         ProductModel product = ProductModel.register(
                 "동기화테스트상품",
                 brandId,
-                BigDecimal.valueOf(100),
+                100,
                 BigDecimal.valueOf(50000),
                 "좋아요 동기화 테스트용 상품",
                 "https://test.com/product.jpg",
