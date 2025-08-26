@@ -30,14 +30,9 @@ class OrderItemModelTest {
             // assert
             assertAll(
                     () -> assertThat(orderItem).isNotNull(),
-                    () -> assertThat(orderItem.getOrderModelId().value()).isEqualTo(orderModel.getId()),
                     () -> assertThat(orderItem.getProductId().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_PRODUCT_ID),
-                    () -> assertThat(orderItem.getOptionId().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_OPTION_ID),
                     () -> assertThat(orderItem.getQuantity().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_QUANTITY),
-                    () -> assertThat(orderItem.getOrderItemPrice().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_PRICE_PER_UNIT),
-                    () -> assertThat(orderItem.getProductSnapshot().getProductName()).isEqualTo(OrderItemFixture.ORDER_ITEM_PRODUCT_NAME),
-                    () -> assertThat(orderItem.getProductSnapshot().getOptionName()).isEqualTo(OrderItemFixture.ORDER_ITEM_OPTION_NAME),
-                    () -> assertThat(orderItem.getProductSnapshot().getImageUrl()).isEqualTo(OrderItemFixture.ORDER_ITEM_IMAGE_URL)
+                    () -> assertThat(orderItem.getOrderItemPrice().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_PRICE_PER_UNIT)
             );
         }
 
@@ -57,21 +52,7 @@ class OrderItemModelTest {
             assertThat(exception.getMessage()).contains("id cannot be null");
         }
 
-        @DisplayName("옵션 ID가 null이면 생성에 실패한다")
-        @Test
-        void create_whenOptionIdNull() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            Long optionId = null;
-
-            // act & assert
-            CoreException exception = assertThrows(CoreException.class, () -> {
-                OrderItemFixture.createWithOptionId(orderModel, optionId);
-            });
-
-            assertThat(exception.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-            assertThat(exception.getMessage()).contains("orderItemOptionId cannot be null");
-        }
+        // 옵션 ID 관련 테스트는 새로운 도메인 모델에서 제거됨
 
         @DisplayName("음수 수량으로 생성에 실패한다")
         @Test
@@ -121,35 +102,9 @@ class OrderItemModelTest {
             assertThat(exception.getMessage()).contains("단가는 0 이상이어야 합니다");
         }
 
-        @DisplayName("상품명이 null이면 생성에 실패한다")
-        @Test
-        void create_whenProductNameNull() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            String productName = null;
+        // 상품명 관련 테스트는 새로운 도메인 모델에서 제거됨
 
-            // act & assert
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-                OrderItemFixture.createWithProductName(orderModel, productName);
-            });
-
-            assertThat(exception.getMessage()).contains("상품명은 필수입니다");
-        }
-
-        @DisplayName("빈 상품명으로 생성에 실패한다")
-        @Test
-        void create_whenProductNameEmpty() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            String productName = "   ";
-
-            // act & assert
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-                OrderItemFixture.createWithProductName(orderModel, productName);
-            });
-
-            assertThat(exception.getMessage()).contains("상품명은 필수입니다");
-        }
+        // 빈 상품명 관련 테스트는 새로운 도메인 모델에서 제거됨
     }
 
     @Nested
@@ -164,8 +119,7 @@ class OrderItemModelTest {
             int quantity = 3;
             BigDecimal pricePerUnit = new BigDecimal("15000");
             OrderItemModel orderItem = OrderItemFixture.createOrderItem(
-                    orderModel, 1L, 1L, quantity, pricePerUnit,
-                    "Test Product", "Test Option", "http://example.com/image.jpg"
+                    orderModel, quantity, pricePerUnit
             );
             BigDecimal expectedSubtotal = pricePerUnit.multiply(new BigDecimal(quantity));
 
@@ -184,8 +138,7 @@ class OrderItemModelTest {
             int quantity = 0;
             BigDecimal pricePerUnit = new BigDecimal("15000");
             OrderItemModel orderItem = OrderItemFixture.createOrderItem(
-                    orderModel, 1L, 1L, quantity, pricePerUnit,
-                    "Test Product", "Test Option", "http://example.com/image.jpg"
+                    orderModel, 1L, 1L, quantity, pricePerUnit
             );
 
             // act
@@ -203,8 +156,7 @@ class OrderItemModelTest {
             int quantity = 5;
             BigDecimal pricePerUnit = BigDecimal.ZERO;
             OrderItemModel orderItem = OrderItemFixture.createOrderItem(
-                    orderModel, 1L, 1L, quantity, pricePerUnit,
-                    "Test Product", "Test Option", "http://example.com/image.jpg"
+                    orderModel, 1L, 1L, quantity, pricePerUnit
             );
 
             // act
@@ -233,88 +185,6 @@ class OrderItemModelTest {
     }
 
     @Nested
-    @DisplayName("상품 스냅샷 설정 관련 테스트")
-    class ProductSnapshotTest {
-
-        @DisplayName("상품 스냅샷을 설정할 수 있다")
-        @Test
-        void setProductSnapshot_success() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            OrderItemModel orderItem = OrderItemFixture.createOrderItem(orderModel);
-            String newProductName = "Updated Product";
-            String newOptionName = "Updated Option";
-            String newImageUrl = "http://example.com/updated-image.jpg";
-
-            // act
-            orderItem.setProductSnapshot(newProductName, newOptionName, newImageUrl);
-
-            // assert
-            assertAll(
-                    () -> assertThat(orderItem.getProductSnapshot().getProductName()).isEqualTo(newProductName),
-                    () -> assertThat(orderItem.getProductSnapshot().getOptionName()).isEqualTo(newOptionName),
-                    () -> assertThat(orderItem.getProductSnapshot().getImageUrl()).isEqualTo(newImageUrl),
-                    () -> assertThat(orderItem.getProductSnapshot().getPriceAtOrder()).isEqualTo(orderItem.getOrderItemPrice().getValue())
-            );
-        }
-
-        @DisplayName("null 상품명으로 스냅샷 설정 시 실패한다")
-        @Test
-        void setProductSnapshot_withNullProductName() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            OrderItemModel orderItem = OrderItemFixture.createOrderItem(orderModel);
-            String productName = null;
-            String optionName = "Updated Option";
-            String imageUrl = "http://example.com/updated-image.jpg";
-
-            // act & assert
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-                orderItem.setProductSnapshot(productName, optionName, imageUrl);
-            });
-
-            assertThat(exception.getMessage()).contains("상품명은 필수입니다");
-        }
-
-        @DisplayName("빈 상품명으로 스냅샷 설정 시 실패한다")
-        @Test
-        void setProductSnapshot_withEmptyProductName() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            OrderItemModel orderItem = OrderItemFixture.createOrderItem(orderModel);
-            String productName = "   ";
-            String optionName = "Updated Option";
-            String imageUrl = "http://example.com/updated-image.jpg";
-
-            // act & assert
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-                orderItem.setProductSnapshot(productName, optionName, imageUrl);
-            });
-
-            assertThat(exception.getMessage()).contains("상품명은 필수입니다");
-        }
-    }
-
-    @Nested
-    @DisplayName("주문 소속 확인 관련 테스트")
-    class BelongsToOrderTest {
-
-        @DisplayName("주문 아이템이 특정 주문에 속하는지 확인할 수 있다")
-        @Test
-        void belongsToOrder_check() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            OrderItemModel orderItem = OrderItemFixture.createOrderItem(orderModel);
-
-            // act & assert
-            assertAll(
-                    () -> assertThat(orderItem.belongsToOrder(orderModel.getId())).isTrue(),
-                    () -> assertThat(orderItem.belongsToOrder(999L)).isFalse()
-            );
-        }
-    }
-
-    @Nested
     @DisplayName("Fixture를 사용한 테스트")
     class FixtureTest {
 
@@ -330,57 +200,10 @@ class OrderItemModelTest {
             // assert
             assertAll(
                     () -> assertThat(orderItem).isNotNull(),
-                    () -> assertThat(orderItem.getOrderModelId().value()).isEqualTo(orderModel.getId()),
                     () -> assertThat(orderItem.getProductId().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_PRODUCT_ID),
-                    () -> assertThat(orderItem.getOptionId().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_OPTION_ID),
                     () -> assertThat(orderItem.getQuantity().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_QUANTITY),
-                    () -> assertThat(orderItem.getOrderItemPrice().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_PRICE_PER_UNIT),
-                    () -> assertThat(orderItem.getProductSnapshot().getProductName()).isEqualTo(OrderItemFixture.ORDER_ITEM_PRODUCT_NAME),
-                    () -> assertThat(orderItem.getProductSnapshot().getOptionName()).isEqualTo(OrderItemFixture.ORDER_ITEM_OPTION_NAME),
-                    () -> assertThat(orderItem.getProductSnapshot().getImageUrl()).isEqualTo(OrderItemFixture.ORDER_ITEM_IMAGE_URL)
+                    () -> assertThat(orderItem.getOrderItemPrice().getValue()).isEqualTo(OrderItemFixture.ORDER_ITEM_PRICE_PER_UNIT)
             );
-        }
-
-        @DisplayName("특정 상품명으로 아이템 Fixture를 생성할 수 있다")
-        @Test
-        void createWithSpecificProductName() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            String productName = "Custom Product Name";
-
-            // act
-            OrderItemModel orderItem = OrderItemFixture.createWithProductName(orderModel, productName);
-
-            // assert
-            assertThat(orderItem.getProductSnapshot().getProductName()).isEqualTo(productName);
-        }
-
-        @DisplayName("특정 옵션명으로 아이템 Fixture를 생성할 수 있다")
-        @Test
-        void createWithSpecificOptionName() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            String optionName = "Custom Option Name";
-
-            // act
-            OrderItemModel orderItem = OrderItemFixture.createWithOptionName(orderModel, optionName);
-
-            // assert
-            assertThat(orderItem.getProductSnapshot().getOptionName()).isEqualTo(optionName);
-        }
-
-        @DisplayName("특정 이미지 URL로 아이템 Fixture를 생성할 수 있다")
-        @Test
-        void createWithSpecificImageUrl() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            String imageUrl = "http://example.com/custom-image.jpg";
-
-            // act
-            OrderItemModel orderItem = OrderItemFixture.createWithImageUrl(orderModel, imageUrl);
-
-            // assert
-            assertThat(orderItem.getProductSnapshot().getImageUrl()).isEqualTo(imageUrl);
         }
 
         @DisplayName("특정 가격으로 아이템 Fixture를 생성할 수 있다")
@@ -423,20 +246,6 @@ class OrderItemModelTest {
 
             // assert
             assertThat(orderItem.getProductId().getValue()).isEqualTo(productId);
-        }
-
-        @DisplayName("특정 옵션 ID로 아이템 Fixture를 생성할 수 있다")
-        @Test
-        void createWithSpecificOptionId() {
-            // arrange
-            OrderModel orderModel = OrderFixture.createOrderModel();
-            Long optionId = 888L;
-
-            // act
-            OrderItemModel orderItem = OrderItemFixture.createWithOptionId(orderModel, optionId);
-
-            // assert
-            assertThat(orderItem.getOptionId().getValue()).isEqualTo(optionId);
         }
     }
 }

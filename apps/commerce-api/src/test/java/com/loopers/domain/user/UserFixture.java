@@ -20,7 +20,7 @@ public class UserFixture {
     }
 
     public static UserModel createUserWithGender(String gender) {
-        return createUser(USER_LOGIN_ID, USER_EMAIL, USER_BIRTH_DATE, USER_GENDER);
+        return createUser(USER_LOGIN_ID, USER_EMAIL, USER_BIRTH_DATE, gender);
     }
 
     public static UserModel createUserWithBirthDate(String birthDate) {
