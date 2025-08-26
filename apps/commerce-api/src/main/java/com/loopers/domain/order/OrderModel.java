@@ -1,11 +1,11 @@
 package com.loopers.domain.order;
 
+import com.loopers.application.order.OrderCommand;
 import com.loopers.domain.BaseEntity;
-import com.loopers.domain.coupon.CouponModel;
-import com.loopers.domain.order.embeded.OrderUserId;
 import com.loopers.domain.order.embeded.OrderNumber;
 import com.loopers.domain.order.embeded.OrderStatus;
 import com.loopers.domain.order.embeded.OrderTotalPrice;
+import com.loopers.domain.order.embeded.OrderUserId;
 import com.loopers.domain.order.item.OrderItemModel;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -48,6 +48,28 @@ public class OrderModel extends BaseEntity {
                 OrderTotalPrice.of(totalPrice)
         );
     }
+    public static OrderModel createWithItems(Long userId,
+                                             List<OrderCommand.OrderItemData> itemDataList
+    ){
+        OrderModel order = new OrderModel(
+                OrderNumber.generate(userId),
+                OrderUserId.of(userId),
+                OrderStatus.pendingPayment(),
+                OrderTotalPrice.of(BigDecimal.ZERO)
+        );
+
+        for (OrderCommand.OrderItemData itemData : itemDataList) {
+            OrderItemModel item = OrderItemModel.of(
+                    itemData.productId(),
+                    itemData.quantity(),
+                    itemData.pricePerUnit()
+            );
+            order.orderItems.add(item);
+        }
+
+        order.recalcTotal();
+        return order;
+    }
     public static OrderModel register(Long userId) {
         return new OrderModel(
                 OrderNumber.generate(userId),
@@ -57,12 +79,16 @@ public class OrderModel extends BaseEntity {
         );
     }
 
-    public void addItem(Long productId, Long optionId, int quantity, BigDecimal pricePerUnit,
-                        String productName, String optionName, String imageUrl) {
+    public void addItem(Long productId, int quantity, BigDecimal pricePerUnit) {
         OrderItemModel item = OrderItemModel.of(
-                this.getId(), productId, optionId, quantity, pricePerUnit, productName, optionName, imageUrl
-        );
+                productId, quantity, pricePerUnit);
+
         this.orderItems.add(item);
+        recalcTotal();
+    }
+    public void replaceAllItems(List<OrderItemModel> orderItems) {
+        this.orderItems.clear();
+        this.orderItems.addAll(orderItems);
         recalcTotal();
     }
     public void cancel() {
@@ -91,28 +117,15 @@ public class OrderModel extends BaseEntity {
         this.totalPrice = OrderTotalPrice.of(calculateTotal());
     }
 
-    public void applyFixedCoupon(CouponModel couponModel) {
-        if (couponModel.getType().isFixed()) {
-            BigDecimal discountAmount = couponModel.getValue().getValue();
-            if (discountAmount.compareTo(this.totalPrice.getValue()) > 0) {
-                throw new IllegalArgumentException("쿠폰 할인 금액이 주문 총액보다 큽니다.");
-            }
-            this.totalPrice = this.totalPrice.subtract(discountAmount);
-        } else {
-            throw new IllegalArgumentException("유효하지 않은 쿠폰 타입입니다.");
+    public void applyDiscount(BigDecimal discountAmount) {
+        if (discountAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("할인 금액은 0 이상이어야 합니다.");
         }
+
+        BigDecimal maxDiscount = this.totalPrice.getValue();
+        BigDecimal actualDiscount = discountAmount.min(maxDiscount);
+
+        this.totalPrice = this.totalPrice.subtract(actualDiscount);
     }
 
-    public void applyRateCoupon(CouponModel couponModel) {
-        if (couponModel.getType().isRate()) {
-            BigDecimal rate = couponModel.getValue().getValue();
-            if (rate.compareTo(BigDecimal.ZERO) < 0 || rate.compareTo(BigDecimal.ONE) >= 0) {
-                throw new IllegalArgumentException("할인률은 0 이상 1 미만이어야 합니다.");
-            }
-            BigDecimal discountAmount = this.totalPrice.getValue().multiply(rate);
-            this.totalPrice = this.totalPrice.applyRate(discountAmount);
-        } else {
-            throw new IllegalArgumentException("유효하지 않은 쿠폰 타입입니다.");
-        }
-    }
 }

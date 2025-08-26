@@ -4,12 +4,10 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.Getter;
 
 import java.math.BigDecimal;
 
 @Embeddable
-@Getter
 public class OrderTotalPrice {
     
     @Column(name = "total_price", nullable = false)

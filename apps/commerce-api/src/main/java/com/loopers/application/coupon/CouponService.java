@@ -2,6 +2,7 @@ package com.loopers.application.coupon;
 
 import com.loopers.domain.coupon.CouponModel;
 import com.loopers.domain.coupon.CouponRepository;
+import com.loopers.domain.order.OrderModel;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import org.springframework.stereotype.Component;
@@ -57,19 +58,18 @@ public class CouponService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public CouponCommand.Result applyCouponToOrder(CouponModel coupon, BigDecimal orderAmount) {
+    public BigDecimal applyCouponToOrder(CouponModel coupon, OrderModel orderModel) {
         if (!coupon.canUse()) {
             throw new CoreException(ErrorType.BAD_REQUEST, "사용할 수 없는 쿠폰입니다.");
         }
-
-        BigDecimal discountAmount = coupon.calculateDiscountAmount(orderAmount);
+        BigDecimal orderAmount = orderModel.getTotalPrice().getValue();
+        BigDecimal discountAmount
+                = coupon.calculateDiscountAmount(orderAmount);
         
         if (discountAmount.compareTo(orderAmount) > 0) {
             discountAmount = orderAmount;
         }
-
-        return new CouponCommand.Result(coupon, discountAmount);
+        coupon.use(orderModel.getId());
+        return discountAmount;
     }
-
-
 }

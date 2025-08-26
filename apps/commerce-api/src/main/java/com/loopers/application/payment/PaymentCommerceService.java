@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PaymentCommerceService {
     private final PaymentCommerceRepository paymentRepository;
-    private final PgCommerceGateway pgGateway;
+    private final PgGateway pgGateway;
 
     public PaymentCommerceService(PaymentCommerceRepository paymentRepository,
                                   PgGateway pgGateway) {
@@ -19,6 +19,5 @@ public class PaymentCommerceService {
 
     @Transactional
     public void processReqeustPayment(PaymentCommerceEvent.Request event) {
-        pgGateway
     }
 }
