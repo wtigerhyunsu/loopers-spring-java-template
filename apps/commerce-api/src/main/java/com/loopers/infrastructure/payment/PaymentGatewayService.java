@@ -1,7 +1,7 @@
-package com.loopers.client.payment;
+package com.loopers.infrastructure.payment;
 
-import com.loopers.client.payment.dto.ApiResponse;
-import com.loopers.client.payment.dto.PaymentV1Dto;
+import com.loopers.interfaces.api.ApiResponse;
+import com.loopers.infrastructure.payment.dto.PaymentV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;

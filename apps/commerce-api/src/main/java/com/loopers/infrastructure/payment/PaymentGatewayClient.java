@@ -1,15 +1,15 @@
-package com.loopers.client.payment;
+package com.loopers.infrastructure.payment;
 
-import com.loopers.client.payment.dto.ApiResponse;
-import com.loopers.client.payment.dto.PaymentV1Dto;
 import com.loopers.config.feign.FeignConfig;
+import com.loopers.interfaces.api.ApiResponse;
+import com.loopers.infrastructure.payment.dto.PaymentV1Dto;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
     value = "loopers-payment",
-        url = "${pg.loopers}",
+        url = "${external.loopers.url}",
         configuration = FeignConfig.class)
 public interface PaymentGatewayClient {
 

@@ -1,13 +1,13 @@
 package com.loopers.infrastructure.payment;
 
 import com.loopers.domain.payment.PaymentModel;
-import com.loopers.domain.payment.PaymentRepository;
+import com.loopers.domain.payment.PaymentCommerceRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public class PaymentRepositoryImpl implements PaymentRepository {
+public class PaymentRepositoryImpl implements PaymentCommerceRepository {
     private final PaymentJpaRepository paymentJpaRepository;
 
     public PaymentRepositoryImpl(PaymentJpaRepository paymentJpaRepository) {
