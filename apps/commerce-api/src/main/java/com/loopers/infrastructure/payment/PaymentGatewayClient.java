@@ -2,7 +2,7 @@ package com.loopers.infrastructure.payment;
 
 import com.loopers.config.feign.FeignConfig;
 import com.loopers.interfaces.api.ApiResponse;
-import com.loopers.infrastructure.payment.dto.PaymentV1Dto;
+import com.loopers.infrastructure.payment.dto.PaymentClientDto;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -17,16 +17,16 @@ public interface PaymentGatewayClient {
      * 결제 요청 API
      */
     @PostMapping(consumes = "application/json")
-    ApiResponse<PaymentV1Dto.Response> requestPayment(
+    ApiResponse<PaymentClientDto.Response> requestPayment(
             @RequestHeader("X-USER-ID") String userId,
-            @Valid @RequestBody PaymentV1Dto.Request request
+            @Valid @RequestBody PaymentClientDto.Request request
     );
 
     /**
      * 결제 정보 조회 API
      */
     @GetMapping("{transactionKey}")
-    ApiResponse<PaymentV1Dto.Response.Detail> getPaymentDetail(
+    ApiResponse<PaymentClientDto.Response.Detail> getPaymentDetail(
             @RequestHeader("X-USER-ID") String userId,
             @PathVariable("transactionKey") String transactionKey
     );

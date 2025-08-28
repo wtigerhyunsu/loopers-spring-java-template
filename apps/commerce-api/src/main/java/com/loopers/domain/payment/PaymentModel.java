@@ -135,4 +135,8 @@ public class PaymentModel extends BaseEntity {
     public String getStatusValue() {
         return this.status.getValue();
     }
+    
+    public ZonedDateTime getCompletedAt() {
+        return this.completedAt;
+    }
 }

@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
-public class PaymentV1Dto {
+public class PaymentClientDto {
     
     public record Request(
             @NotNull(message = "주문 ID는 필수입니다")
@@ -14,15 +15,20 @@ public class PaymentV1Dto {
             
             @NotNull(message = "결제 금액은 필수입니다")
             @Positive(message = "결제 금액은 양수여야 합니다")
-            Long amount,
+            BigDecimal amount,
             
             @NotNull(message = "결제 수단은 필수입니다")
-            String paymentMethod,
+            String cardType,
+
+            @NotNull(message = "카드 번호는 필수 입니다.")
+            String cardNo,
+
+            @NotNull(message = "callbackUrl 은 필수 입니다.")
+            String callbackUrl
             
-            Long pointUsed
     ) {
-        public static Request of(String orderId, Long amount, String paymentMethod, Long pointUsed) {
-            return new Request(orderId, amount, paymentMethod, pointUsed);
+        public static Request of(String orderId, BigDecimal amount, String cardType, String cardNo, String callbackUrl) {
+            return new Request(orderId, amount, cardType, cardNo, callbackUrl);
         }
     }
     
