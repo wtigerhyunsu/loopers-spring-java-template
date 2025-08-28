@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -119,6 +120,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public Optional<ProductModel> findByIdAndActive(Long productModelId) {
         return productJpaRepository.findByIdAndStatus(productModelId, "active");
+    }
+    
+    @Override
+    public void updateLikeCount(Map<Long, Long> productLikeCounts) {
+        productJpaRepository.updateLikeCount(productLikeCounts);
     }
 
     private OrderSpecifier<?> getOrderSpecifier(QProductModel product, String sort) {

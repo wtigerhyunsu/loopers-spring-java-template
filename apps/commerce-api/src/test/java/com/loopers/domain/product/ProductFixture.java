@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 
 public class ProductFixture {
@@ -55,5 +56,27 @@ public class ProductFixture {
     
     public static ProductModel createProductWithBrandId(Long productId, Long brandId){
         return createProductModel(PRODUCT_NAME, brandId, PRODUCT_STOCK, PRODUCT_PRICE, PRODUCT_DESCRIPTION,PRODUCT_IMG_URL,PRODUCT_STATUS,PRODUCT_LIKE_COUNT);
+    }
+    
+    public static ProductModel createProductWithId(Long id) {
+        ProductModel product = createProductModel();
+        setId(product, id);
+        return product;
+    }
+    
+    public static ProductModel createProductWithIdAndLikeCount(Long id, BigDecimal likeCount) {
+        ProductModel product = createProductWithLikeCount(likeCount);
+        setId(product, id);
+        return product;
+    }
+    
+    private static void setId(ProductModel product, Long id) {
+        try {
+            Field idField = product.getClass().getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(product, id);
+        } catch (Exception e) {
+            throw new RuntimeException("테스트용 ID 설정 실패", e);
+        }
     }
 }

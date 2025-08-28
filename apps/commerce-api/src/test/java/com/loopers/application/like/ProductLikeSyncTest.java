@@ -5,17 +5,31 @@ import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.like.product.ProductLikeRepository;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@org.springframework.test.context.ActiveProfiles("test")
 class ProductLikeSyncTest {
+
+    @MockBean
+    private RedisTemplate<String, String> redisTemplate;
+
+    @MockBean
+    private ValueOperations<String, String> valueOperations;
 
     @Autowired
     private ProductLikeFacade productLikeFacade;
@@ -28,6 +42,11 @@ class ProductLikeSyncTest {
 
     @Autowired
     private ProductLikeRepository productLikeRepository;
+
+    @BeforeEach
+    void setUp() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    }
 
     @Test
     @DisplayName("좋아요 등록/취소 시 count 동기화 테스트")

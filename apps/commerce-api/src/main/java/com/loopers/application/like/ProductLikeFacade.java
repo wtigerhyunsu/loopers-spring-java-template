@@ -1,6 +1,7 @@
 package com.loopers.application.like;
 
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.like.product.ProductLikeEventPublisher;
 import com.loopers.domain.like.product.ProductLikeModel;
 import com.loopers.domain.like.product.ProductLikeRepository;
 import com.loopers.domain.like.product.ProductLikeService;
@@ -28,15 +29,18 @@ public class ProductLikeFacade {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final ProductLikeService productLikeService;
+    private final ProductLikeEventPublisher eventPublisher;
 
     public ProductLikeFacade(ProductLikeRepository productLikeRepository,
                             ProductRepository productRepository,
                             BrandRepository brandRepository,
-                            ProductLikeService productLikeService) {
+                            ProductLikeService productLikeService,
+                            ProductLikeEventPublisher eventPublisher) {
         this.productLikeRepository = productLikeRepository;
         this.productRepository = productRepository;
         this.brandRepository = brandRepository;
         this.productLikeService = productLikeService;
+        this.eventPublisher = eventPublisher;
     }
     @Transactional
     public void toggleLike(Long userId, Long productId) {
