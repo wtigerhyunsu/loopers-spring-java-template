@@ -4,9 +4,7 @@ import com.loopers.application.coupon.CouponService;
 import com.loopers.domain.coupon.CouponModel;
 import com.loopers.domain.order.OrderEvent;
 import com.loopers.domain.order.OrderModel;
-import com.loopers.domain.payment.PaymentCommerceEventPublisher;
-import com.loopers.domain.payment.PaymentCommerceEvent;
-import com.loopers.infrastructure.order.OrderEventPublisher;
+import com.loopers.domain.order.OrderEventPublisher;
 import com.loopers.support.error.CoreException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -58,7 +56,7 @@ public class OrderFacade {
                 request.cardNumber()
         );
         
-        orderEventPublisher.publishEvent(orderCreatedEvent);
+        orderEventPublisher.publishOrderCreated(orderCreatedEvent);
         
         log.info("주문 생성 완료 및 이벤트 발행: orderId={}, orderNumber={}, userId={}", 
                 orderModel.getId(), orderModel.getOrderNumber().getValue(), orderModel.getUserId().getValue());

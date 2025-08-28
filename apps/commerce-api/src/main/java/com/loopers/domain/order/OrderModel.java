@@ -109,6 +109,14 @@ public class OrderModel extends BaseEntity {
     public void updateStatus(String status) {
         this.status = this.status.updateStatus(status);
     }
+    
+    public void completePayment() {
+        this.status = OrderStatus.paymentCompleted();
+    }
+    
+    public void failPayment() {
+        this.status = OrderStatus.paymentFailed();
+    }
     public boolean canBeCancelled() {
         return this.status.canBeCancelled();
     }

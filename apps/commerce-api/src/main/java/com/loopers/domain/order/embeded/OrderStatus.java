@@ -34,6 +34,14 @@ public class OrderStatus {
     public static OrderStatus pendingPayment() {
         return new OrderStatus(Status.PENDING_PAYMENT);
     }
+    
+    public static OrderStatus paymentCompleted() {
+        return new OrderStatus(Status.PAYMENT_COMPLETED);
+    }
+    
+    public static OrderStatus paymentFailed() {
+        return new OrderStatus(Status.PAYMENT_FAILED);
+    }
 
     public boolean isPendingPayment() {
         return this.status == Status.PENDING_PAYMENT;
