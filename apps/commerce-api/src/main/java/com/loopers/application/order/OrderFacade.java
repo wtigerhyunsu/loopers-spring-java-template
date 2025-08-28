@@ -2,8 +2,11 @@ package com.loopers.application.order;
 
 import com.loopers.application.coupon.CouponService;
 import com.loopers.domain.coupon.CouponModel;
+import com.loopers.domain.order.OrderEvent;
 import com.loopers.domain.order.OrderModel;
 import com.loopers.domain.payment.PaymentCommerceEventPublisher;
+import com.loopers.domain.payment.PaymentCommerceEvent;
+import com.loopers.infrastructure.order.OrderEventPublisher;
 import com.loopers.support.error.CoreException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,18 +20,20 @@ import java.util.List;
 public class OrderFacade {
     private final OrderCreationService orderCreationService;
     private final OrderItemCreationService orderItemCreationService;
-
     private final CouponService couponService;
-    private final PaymentCommerceEventPublisher paymentEventPublisher;
+    private final OrderEventPublisher orderEventPublisher;
+    private final OrderMapper orderMapper;
 
     public OrderFacade(OrderCreationService orderCreationService,
                        OrderItemCreationService orderItemCreationService,
                        CouponService couponService,
-                       PaymentCommerceEventPublisher paymentEventPublisher) {
+                       OrderEventPublisher orderEventPublisher,
+                       OrderMapper orderMapper) {
         this.orderCreationService = orderCreationService;
         this.orderItemCreationService = orderItemCreationService;
         this.couponService = couponService;
-        this.paymentEventPublisher = paymentEventPublisher;
+        this.orderEventPublisher = orderEventPublisher;
+        this.orderMapper = orderMapper;
     }
     @Transactional(rollbackFor = {Exception.class, CoreException.class})
     public OrderInfo.OrderItem createOrder(OrderCommand.Create request){
@@ -45,10 +50,20 @@ public class OrderFacade {
             // 주문 금액에 할인 적용
             orderModel.applyDiscount(discountAmount);  // 단순한 할인 적용 메서드
         }
-
-//        paymentEventPublisher.paymentPublisher();
-        return null;
-        //5. 결제처리한다.(event)
+        OrderEvent.Created orderCreatedEvent = OrderEvent.Created.of(
+                orderModel.getId(),
+                orderModel.getOrderNumber().getValue(),
+                request.userId(),
+                request.cardType(),
+                request.cardNumber()
+        );
+        
+        orderEventPublisher.publishEvent(orderCreatedEvent);
+        
+        log.info("주문 생성 완료 및 이벤트 발행: orderId={}, orderNumber={}, userId={}", 
+                orderModel.getId(), orderModel.getOrderNumber().getValue(), orderModel.getUserId().getValue());
+        
+        return orderMapper.toOrderItem(orderModel);
     }
 
 

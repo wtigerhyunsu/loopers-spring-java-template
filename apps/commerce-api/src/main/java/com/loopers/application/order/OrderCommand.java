@@ -8,7 +8,7 @@ public class OrderCommand {
             Long userId,
             List<OrderItem> productIds,
             Long couponId,
-            String payType,
+            String cardType,
             String cardNumber
     ) {
         public record OrderItem(

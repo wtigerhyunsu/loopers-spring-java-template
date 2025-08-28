@@ -28,8 +28,6 @@ public class OrderInfo {
         public record OrderItemDetail(
                 Long productId,
                 String productName,
-                Long optionId,
-                String optionName,
                 int quantity,
                 BigDecimal price,
                 String productImageUrl
