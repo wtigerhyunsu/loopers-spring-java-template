@@ -20,7 +20,7 @@ class SimpleConcurrencyTest {
         ProductModel product = ProductModel.register(
             "테스트 상품",
             1L,
-            BigDecimal.valueOf(10),
+            10,
             BigDecimal.valueOf(1000),
             "테스트 상품입니다",
             "test.jpg",
@@ -28,10 +28,10 @@ class SimpleConcurrencyTest {
             BigDecimal.ZERO
         );
 
-        assertThatThrownBy(() -> product.decreaseStock(BigDecimal.valueOf(15)))
+        assertThatThrownBy(() -> product.decreaseStock(15))
             .hasMessageContaining("재고가 부족합니다");
 
-        assertThatThrownBy(() -> product.decreaseStock(BigDecimal.valueOf(-1)))
+        assertThatThrownBy(() -> product.decreaseStock(-1))
             .hasMessageContaining("차감할 재고량은 0보다 커야 합니다");
     }
 
@@ -41,7 +41,7 @@ class SimpleConcurrencyTest {
         ProductModel product = ProductModel.register(
             "테스트 상품",
             1L,
-            BigDecimal.valueOf(1),
+            1,
             BigDecimal.valueOf(1000),
             "테스트 상품입니다",
             "test.jpg",
@@ -49,10 +49,10 @@ class SimpleConcurrencyTest {
             BigDecimal.ZERO
         );
 
-        product.decreaseStock(BigDecimal.valueOf(1));
+        product.decreaseStock(1);
 
         assertThat(product.getStatus().getValue()).isEqualTo("OUT_OF_STOCK");
-        assertThat(product.getStock().getValue()).isEqualTo(BigDecimal.ZERO);
+        assertThat(product.getStock().getValue()).isEqualTo(0);
     }
 
     @Test
@@ -61,7 +61,7 @@ class SimpleConcurrencyTest {
         ProductModel product = ProductModel.register(
             "테스트 상품",
             1L,
-            BigDecimal.ZERO,
+            0,
             BigDecimal.valueOf(1000),
             "테스트 상품입니다",
             "test.jpg",
@@ -69,10 +69,10 @@ class SimpleConcurrencyTest {
             BigDecimal.ZERO
         );
 
-        product.restoreStock(BigDecimal.valueOf(5));
+        product.restoreStock(5);
 
         assertThat(product.getStatus().getValue()).isEqualTo("ACTIVE");
-        assertThat(product.getStock().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(product.getStock().getValue()).isEqualTo(5);
     }
 
     @Test
@@ -110,7 +110,7 @@ class SimpleConcurrencyTest {
         ProductModel product = ProductModel.register(
             "테스트 상품",
             1L,
-            BigDecimal.valueOf(10),
+            10,
             BigDecimal.valueOf(1000),
             "테스트 상품입니다",
             "test.jpg",

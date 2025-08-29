@@ -1,22 +1,36 @@
 package com.loopers.domain.like;
 
+import com.loopers.domain.like.product.ProductLikeEventPublisher;
 import com.loopers.domain.like.product.ProductLikeModel;
 import com.loopers.domain.like.product.ProductLikeService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductFixture;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("상품 좋아요 도메인 서비스 테스트")
 class ProductLikeServiceTest {
 
-    private final ProductLikeService productLikeService = new ProductLikeService();
+    @Mock
+    private ProductLikeEventPublisher eventPublisher;
+    
+    private ProductLikeService productLikeService;
+    
+    @BeforeEach
+    void setUp() {
+        productLikeService = new ProductLikeService(eventPublisher);
+    }
 
     @Nested
     @DisplayName("상품 좋아요 등록 테스트")
@@ -27,7 +41,7 @@ class ProductLikeServiceTest {
         void addLike_createsLikeAndIncrementsCount() {
             // arrange
             Long userId = 1L;
-            ProductModel product = ProductFixture.createProductWithLikeCount(new BigDecimal("5"));
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, new BigDecimal("5"));
             Long productId = product.getId();
 
             // act
@@ -47,7 +61,7 @@ class ProductLikeServiceTest {
         void addLike_actZeroCount_increments() {
             // arrange
             Long userId = 1L;
-            ProductModel product = ProductFixture.createProductWithLikeCount(BigDecimal.ZERO);
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, BigDecimal.ZERO);
 
             // act
             ProductLikeModel result = productLikeService.addLike(product, userId);
@@ -69,7 +83,7 @@ class ProductLikeServiceTest {
         void removeLike_decrementsCount() {
             // arrange
             Long userId = 1L;
-            ProductModel product = ProductFixture.createProductWithLikeCount(new BigDecimal("5"));
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, new BigDecimal("5"));
             ProductLikeModel existingLike = ProductLikeModel.create(userId, product.getId());
 
             // act
@@ -84,7 +98,7 @@ class ProductLikeServiceTest {
         void removeLike_actZeroCount_staysZero() {
             // arrange
             Long userId = 1L;
-            ProductModel product = ProductFixture.createProductWithLikeCount(BigDecimal.ZERO);
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, BigDecimal.ZERO);
             ProductLikeModel existingLike = ProductLikeModel.create(userId, product.getId());
 
             // act
@@ -104,7 +118,7 @@ class ProductLikeServiceTest {
         void toggleLike_actNotExists_addsLikeAndIncrementsCount() {
             // arrange
             Long userId = 1L;
-            ProductModel product = ProductFixture.createProductWithLikeCount(new BigDecimal("3"));
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, new BigDecimal("3"));
             ProductLikeModel existingLike = null;
 
             // act
@@ -125,7 +139,7 @@ class ProductLikeServiceTest {
         void toggleLike_actExists_removesLikeAndDecrementsCount() {
             // arrange
             Long userId = 1L;
-            ProductModel product = ProductFixture.createProductWithLikeCount(new BigDecimal("5"));
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, new BigDecimal("5"));
             ProductLikeModel existingLike = ProductLikeModel.create(userId, product.getId());
 
             // act
@@ -144,7 +158,7 @@ class ProductLikeServiceTest {
         void toggleLike_twice_returnsToOriginalState() {
             // arrange
             Long userId = 1L;
-            ProductModel product = ProductFixture.createProductWithLikeCount(new BigDecimal("10"));
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, new BigDecimal("10"));
             BigDecimal originalCount = product.getLikeCount().getValue();
 
             // act - 첫 번째 토글 (추가)
@@ -170,7 +184,7 @@ class ProductLikeServiceTest {
         @Test
         void multipleUsersLike_accumulatesCount() {
             // arrange
-            ProductModel product = ProductFixture.createProductWithLikeCount(BigDecimal.ZERO);
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, BigDecimal.ZERO);
             Long user1Id = 1L;
             Long user2Id = 2L;
             Long user3Id = 3L;
@@ -188,7 +202,7 @@ class ProductLikeServiceTest {
         @Test
         void addAndRemove_maintainsCorrectCount() {
             // arrange
-            ProductModel product = ProductFixture.createProductWithLikeCount(new BigDecimal("5"));
+            ProductModel product = ProductFixture.createProductWithIdAndLikeCount(1L, new BigDecimal("5"));
             Long userId = 1L;
 
             // act & assert
@@ -209,8 +223,8 @@ class ProductLikeServiceTest {
         @Test
         void productLikeService_isStateless() {
             // arrange
-            ProductModel product1 = ProductFixture.createProductWithLikeCount(new BigDecimal("1"));
-            ProductModel product2 = ProductFixture.createProductWithLikeCount(new BigDecimal("10"));
+            ProductModel product1 = ProductFixture.createProductWithIdAndLikeCount(1L, new BigDecimal("1"));
+            ProductModel product2 = ProductFixture.createProductWithIdAndLikeCount(2L, new BigDecimal("10"));
             Long userId = 1L;
 
             // act - 동일한 서비스 인스턴스로 서로 다른 상품 처리

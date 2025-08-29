@@ -32,7 +32,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean existsByLoginId(UserLoginId loginId) {
-        return userJpaRepository.existsByLoginId(loginId);
+        return userJpaRepository.existsByLoginId_LoginId(loginId.getLoginId());
     }
 
     @Override

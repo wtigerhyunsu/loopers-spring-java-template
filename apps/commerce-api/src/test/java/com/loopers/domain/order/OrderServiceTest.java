@@ -1,28 +1,42 @@
 package com.loopers.domain.order;
 
 import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.util.Optional;
 
-@DisplayName("OrderService 테스트")
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
+    @Mock
+    private OrderRepository orderRepository;
+    
+    private OrderService orderService;
+
+    @BeforeEach
+    void setUp() {
+        orderService = new OrderService(orderRepository);
+    }
+
     @Test
-    @DisplayName("주문 생성이 정상적으로 동작한다")
-    void createOrder_ShouldReturnOrderModel() {
-        // Given
-        OrderService orderService = new OrderService();
+    void createOrder_ValidUserId_ReturnsOrderModel() {
+        // arrange
         Long userId = 12345L;
 
-        // When
+        // act
         OrderModel result = orderService.createOrder(userId);
 
-        // Then
+        // assert
         assertThat(result).isNotNull();
         assertThat(result.getUserId().getValue()).isEqualTo(userId);
         assertThat(result.getOrderNumber()).isNotNull();
@@ -30,81 +44,58 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("재시도 없이 주문 생성 성공")
-    void createOrderWithRetry_FirstAttemptSuccess_ShouldReturnOrder() {
-        // Given
-        OrderService orderService = new OrderService();
-        Long userId = 12345L;
+    void completePayment_ExistingOrder_ChangesStatusToCompleted() {
+        // arrange
+        Long orderId = 1L;
+        OrderModel order = OrderModel.register(123L);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-        // When
-        OrderModel result = orderService.createOrderWithRetry(userId);
+        // act
+        orderService.completePayment(orderId);
 
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getUserId().getValue()).isEqualTo(userId);
-        assertThat(result.getOrderNumber()).isNotNull();
+        // assert
+        assertThat(order.getStatus().getValue()).isEqualTo("PAYMENT_COMPLETED");
+        verify(orderRepository).save(order);
     }
 
     @Test
-    @DisplayName("최대 재시도 횟수 검증")
-    void createOrderWithRetry_WithMaxRetries_ShouldRespectLimit() {
-        // Given
-        OrderService orderService = new OrderService();
-        Long userId = 12345L;
-        int maxRetries = 5;
+    void completePayment_NonExistentOrder_ThrowsCoreException() {
+        // arrange
+        Long orderId = 999L;
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        // When
-        OrderModel result = orderService.createOrderWithRetry(userId, maxRetries);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getUserId().getValue()).isEqualTo(userId);
+        // act & assert
+        assertThatThrownBy(() -> orderService.completePayment(orderId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage("주문을 찾을 수 없습니다");
     }
 
     @Test
-    @DisplayName("동시에 여러 주문을 생성해도 문제없이 처리된다")
-    void createOrder_Concurrent_ShouldHandleMultipleOrders() throws InterruptedException {
-        // Given
-        OrderService orderService = new OrderService();
-        Long userId = 12345L;
-        int threadCount = 50;
-        
-        // When & Then
-        Runnable orderCreation = () -> {
-            OrderModel order = orderService.createOrderWithRetry(userId);
-            assertThat(order).isNotNull();
-            assertThat(order.getUserId().getValue()).isEqualTo(userId);
-        };
+    void failPayment_ExistingOrder_ChangesStatusToFailed() {
+        // arrange
+        Long orderId = 1L;
+        String reason = "카드 한도 초과";
+        OrderModel order = OrderModel.register(123L);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-        // 동시에 여러 스레드에서 주문 생성
-        Thread[] threads = new Thread[threadCount];
-        for (int i = 0; i < threadCount; i++) {
-            threads[i] = new Thread(orderCreation);
-        }
+        // act
+        orderService.failPayment(orderId, reason);
 
-        // 모든 스레드 시작
-        for (Thread thread : threads) {
-            thread.start();
-        }
-
-        // 모든 스레드 완료 대기
-        for (Thread thread : threads) {
-            thread.join(5000); // 5초 타임아웃
-            assertThat(thread.isAlive()).isFalse();
-        }
+        // assert
+        assertThat(order.getStatus().getValue()).isEqualTo("PAYMENT_FAILED");
+        verify(orderRepository).save(order);
     }
 
     @Test
-    @DisplayName("재시도 로직이 DataIntegrityViolationException 메시지를 올바르게 처리한다")
-    void createOrderWithRetry_ShouldHandleDataIntegrityViolationMessage() {
-        // Given
-        OrderService orderService = new OrderService();
-        Long userId = 12345L;
+    void failPayment_NonExistentOrder_ThrowsCoreException() {
+        // arrange
+        Long orderId = 999L;
+        String reason = "카드 한도 초과";
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        // When & Then - 실제로는 중복이 발생하지 않을 가능성이 높으므로, 정상 실행 테스트
-        OrderModel result = orderService.createOrderWithRetry(userId, 3);
-        
-        assertThat(result).isNotNull();
-        assertThat(result.getUserId().getValue()).isEqualTo(userId);
+        // act & assert
+        assertThatThrownBy(() -> orderService.failPayment(orderId, reason))
+                .isInstanceOf(CoreException.class)
+                .hasMessage("주문을 찾을 수 없습니다");
     }
 }

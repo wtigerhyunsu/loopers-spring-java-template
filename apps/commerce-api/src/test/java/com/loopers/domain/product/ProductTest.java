@@ -68,25 +68,11 @@ class ProductTest {
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("재고가 null이면 등록에 실패한다")
-        @Test
-        void register_whenStockNull() {
-            // arrange
-            BigDecimal stock = null;
-
-            // act
-            CoreException exception = assertThrows(CoreException.class, () -> {
-                ProductFixture.createProductWithStock(stock);
-            });
-            //assert
-            assertThat(exception.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-        }
-
         @DisplayName("재고가 음수이면 등록에 실패한다")
         @Test
         void register_whenStockNegative() {
             // arrange
-            BigDecimal stock = new BigDecimal("-1");
+            int stock = -1;
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
@@ -170,21 +156,21 @@ class ProductTest {
         void decreaseStock_withSufficientStock() {
             // arrange
             ProductModel product = ProductFixture.createProductModel();
-            BigDecimal quantity = new BigDecimal("10");
+            int quantity = 10;
 
             // act
             product.decreaseStock(quantity);
 
             // assert
-            assertThat(product.hasEnoughStock(new BigDecimal("90"))).isTrue();
+            assertThat(product.hasEnoughStock(90)).isTrue();
         }
 
         @DisplayName("재고가 부족할 때 감소시키면 예외가 발생한다")
         @Test
         void decreaseStock_withInsufficientStock() {
             // arrange
-            ProductModel product = ProductFixture.createProductWithStock(new BigDecimal("5"));
-            BigDecimal quantity = new BigDecimal("10");
+            ProductModel product = ProductFixture.createProductWithStock(5);
+            int quantity = 10;
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
                 product.decreaseStock(quantity);
@@ -197,26 +183,26 @@ class ProductTest {
         @Test
         void restoreStock() {
             // arrange
-            ProductModel product = ProductFixture.createProductWithStock(new BigDecimal("50"));
-            BigDecimal quantity = new BigDecimal("20");
+            ProductModel product = ProductFixture.createProductWithStock(50);
+            int quantity = 20;
 
             // act
             product.restoreStock(quantity);
 
             // assert
-            assertThat(product.hasEnoughStock(new BigDecimal("70"))).isTrue();
+            assertThat(product.hasEnoughStock(70)).isTrue();
         }
 
         @DisplayName("요청 수량만큼 재고가 있는지 확인할 수 있다")
         @Test
         void hasEnoughStock() {
             // arrange
-            ProductModel product = ProductFixture.createProductWithStock(new BigDecimal("100"));
+            ProductModel product = ProductFixture.createProductWithStock(100);
 
             // act & assert
-            assertThat(product.hasEnoughStock(new BigDecimal("50"))).isTrue();
-            assertThat(product.hasEnoughStock(new BigDecimal("100"))).isTrue();
-            assertThat(product.hasEnoughStock(new BigDecimal("101"))).isFalse();
+            assertThat(product.hasEnoughStock(50)).isTrue();
+            assertThat(product.hasEnoughStock(100)).isTrue();
+            assertThat(product.hasEnoughStock(101)).isFalse();
         }
     }
 
@@ -288,8 +274,8 @@ class ProductTest {
         @Test
         void isAvailable_activeWithoutStock() {
             // arrange
-            ProductModel product = ProductFixture.createProductWithStock(BigDecimal.ZERO);
-
+            ProductModel product = ProductFixture.createProductWithStock(0);
+            System.out.println(product.toString());
             // act & assert
             assertThat(product.isAvailable()).isFalse();
         }

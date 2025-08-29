@@ -30,17 +30,17 @@ public class CouponRepositoryImpl implements CouponRepository {
     
     @Override
     public List<CouponModel> findByUserId(Long userId) {
-        return couponJpaRepository.findByUserId(CouponUserId.of(userId));
+        return couponJpaRepository.findByUserId(userId);
     }
     
     @Override
     public List<CouponModel> findUsableCouponsByUserId(Long userId) {
-        return couponJpaRepository.findUsableCouponsByUserId(CouponUserId.of(userId));
+        return couponJpaRepository.findUsableCouponsByUserId(userId);
     }
     
     @Override
     public List<CouponModel> findByOrderId(Long orderId) {
-        return couponJpaRepository.findByOrderId(CouponOrderId.of(orderId));
+        return couponJpaRepository.findByOrderId(orderId);
     }
     
     @Override
@@ -56,5 +56,10 @@ public class CouponRepositoryImpl implements CouponRepository {
     @Override
     public void deleteAll() {
         couponJpaRepository.deleteAll();
+    }
+
+    @Override
+    public Optional<CouponModel> findByIdAndUserId(Long id, Long userId) {
+        return couponJpaRepository.findByIdAndUserId_UserId(id, userId);
     }
 }

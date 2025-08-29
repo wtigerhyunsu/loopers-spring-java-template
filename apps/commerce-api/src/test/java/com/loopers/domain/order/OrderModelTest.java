@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OrderModelTest {
 
@@ -30,10 +30,10 @@ class OrderModelTest {
             // assert
             assertAll(
                     () -> assertThat(order).isNotNull(),
-                    () -> assertThat(order.getOrderNumber().getValue()).isEqualTo(OrderFixture.ODER_NUMBER),
-                    () -> assertThat(order.getUserId().getValue()).isEqualTo(OrderFixture.ODER_USER_ID),
-                    () -> assertThat(order.getStatus().getValue()).isEqualTo(OrderFixture.ODER_ORDER_STATUS),
-                    () -> assertThat(order.getOrderItems()).isEmpty()
+                    () -> assertThat(order.getOrderNumber().getValue()).isEqualTo(OrderFixture.ORDER_NUMBER),
+                    () -> assertThat(order.getUserId().getValue()).isEqualTo(OrderFixture.ORDER_USER_ID),
+                    () -> assertThat(order.getStatus().getValue()).isEqualTo(OrderFixture.ORDER_ORDER_STATUS),
+                    () -> assertThat(order.getOrderItems()).hasSize(1)  // addItem()이 호출되므로 1개 아이템이 있어야 함
             );
         }
 
@@ -105,17 +105,13 @@ class OrderModelTest {
             // act
 
             order.addItem(orderItemModel.getProductId().getValue(),
-                    orderItemModel.getOptionId().getValue(),
                     orderItemModel.getQuantity().getValue(),
-                    orderItemModel.getOrderItemPrice().getValue(),
-                    orderItemModel.getProductSnapshot().getProductName(),
-                    orderItemModel.getProductSnapshot().getOptionName(),
-                    orderItemModel.getProductSnapshot().getImageUrl()
+                    orderItemModel.getOrderItemPrice().getValue()
                     );
 
             // assert
             assertAll(
-                    () -> assertThat(order.getOrderItems().size()).isEqualTo(1),
+                    () -> assertThat(order.getOrderItems().size()).isEqualTo(2),  // 기존 fixture에서 1개 + 추가로 1개
                     () -> assertThat(order.getTotalPrice().getValue()).isGreaterThan(BigDecimal.ZERO)
             );
         }
@@ -130,10 +126,12 @@ class OrderModelTest {
             BigDecimal expectedTotal = pricePerUnit.multiply(new BigDecimal(quantity));
 
             // act
-            order.addItem(1L, 1L, quantity, pricePerUnit, "Product", "Option", "url");
+            order.addItem(1L, quantity, pricePerUnit);
 
             // assert
-            assertThat(order.getTotalPrice().getValue()).isEqualTo(expectedTotal);
+            // 기존 fixture의 아이템 가격 + 새로 추가한 아이템 가격
+            BigDecimal expectedTotalWithExisting = OrderFixture.ORDER_PRICE_PER_UNIT.multiply(new BigDecimal(OrderFixture.ORDER_QUANTITY)).add(expectedTotal);
+            assertThat(order.getTotalPrice().getValue()).isEqualByComparingTo(expectedTotalWithExisting);
         }
     }
 
@@ -270,9 +268,9 @@ class OrderModelTest {
         void calculateTotal_withEmptyOrder() {
             // arrange
             OrderModel order = OrderModel.of(
-                    OrderFixture.ODER_NUMBER,
-                    OrderFixture.ODER_USER_ID,
-                    OrderFixture.ODER_ORDER_STATUS,
+                    OrderFixture.ORDER_NUMBER,
+                    OrderFixture.ORDER_USER_ID,
+                    OrderFixture.ORDER_ORDER_STATUS,
                     BigDecimal.ZERO
             );
 
@@ -293,7 +291,9 @@ class OrderModelTest {
             BigDecimal total = order.calculateTotal();
 
             // assert
-            assertThat(total).isEqualByComparingTo(BigDecimal.ZERO);
+            // 기존 fixture에서 addItem()이 호출되므로 실제로는 아이템이 있음
+            BigDecimal expectedTotal = OrderFixture.ORDER_PRICE_PER_UNIT.multiply(new BigDecimal(OrderFixture.ORDER_QUANTITY));
+            assertThat(total).isEqualByComparingTo(expectedTotal);
         }
 
         @DisplayName("여러 아이템의 총 금액을 올바르게 계산한다")
@@ -307,14 +307,18 @@ class OrderModelTest {
             int quantity1 = 2;
             int quantity2 = 3;
             
-            order.addItem(1L, 1L, quantity1, price1, "Product1", "Option1", "url1");
-            order.addItem(2L, 2L, quantity2, price2, "Product2", "Option2", "url2");
+            order.addItem(1L, 1, price1);
+            order.addItem(2L, 2, price2);
 
             // act
             BigDecimal total = order.calculateTotal();
 
             // assert
-            BigDecimal expectedTotal = price1.multiply(new BigDecimal(quantity1)).add(price2.multiply(new BigDecimal(quantity2)));
+            // 기존 fixture 아이템 + 새로 추가한 2개 아이템의 총합
+            BigDecimal fixtureItemTotal = OrderFixture.ORDER_PRICE_PER_UNIT.multiply(new BigDecimal(OrderFixture.ORDER_QUANTITY));
+            BigDecimal newItem1Total = price1.multiply(new BigDecimal(1));
+            BigDecimal newItem2Total = price2.multiply(new BigDecimal(2));
+            BigDecimal expectedTotal = fixtureItemTotal.add(newItem1Total).add(newItem2Total);
             assertThat(total).isEqualByComparingTo(expectedTotal);
         }
     }

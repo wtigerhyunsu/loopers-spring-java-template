@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -49,5 +51,10 @@ public class ProductLikeRepositoryImpl implements ProductLikeRepository {
     @Override
     public long count() {
         return productLikeJpaRepository.count();
+    }
+    
+    @Override
+    public Map<Long, Long> countByProductIds(List<Long> productIds) {
+        return productLikeJpaRepository.countByProductIds(productIds);
     }
 }

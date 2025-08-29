@@ -57,7 +57,7 @@ public class ProductModel extends BaseEntity {
         this.LikeCount = likeCount;
     }
 
-    public static ProductModel register(String productName, Long brandId, BigDecimal stock, BigDecimal productPrice, String productDescription, String productImgUrl, String productStatus, BigDecimal productLikeCount) {
+    public static ProductModel register(String productName, Long brandId, int stock, BigDecimal productPrice, String productDescription, String productImgUrl, String productStatus, BigDecimal productLikeCount) {
         return new ProductModel(
                 ProductName.of(productName),
                 BrandId.of(brandId),
@@ -69,25 +69,34 @@ public class ProductModel extends BaseEntity {
                 ProductLikeCount.of(productLikeCount)
         );
     }
-    public void decreaseStock(BigDecimal quantity) {
-        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+
+    public void decreaseStock(int quantity) {
+        if (quantity <= 0) {
             throw new CoreException(ErrorType.BAD_REQUEST, "차감할 재고량은 0보다 커야 합니다.");
         }
-        
+
         if (!hasEnoughStock(quantity)) {
-            throw new CoreException(ErrorType.BAD_REQUEST, 
-                "재고가 부족합니다. 현재 재고: " + this.stock.getValue() + ", 요청 수량: " + quantity);
+            throw new CoreException(
+                    ErrorType.BAD_REQUEST,
+                    "재고가 부족합니다. 현재 재고: " + this.stock.getValue() + ", 요청 수량: " + quantity
+            );
         }
-        
+
+        // 감소
         this.stock = this.stock.decrease(quantity);
 
-        if (this.stock.getValue().compareTo(BigDecimal.ZERO) == 0) {
+        // 0이면 품절 처리
+        if (this.stock.getValue() == 0) {
             this.Status = ProductStatus.of("OUT_OF_STOCK");
         }
     }
+    public boolean hasEnoughStock(int quantity) {
+        return this.stock.getValue() >= quantity;
+    }
 
-    public void restoreStock(BigDecimal quantity) {
-        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+
+    public void restoreStock(int quantity) {
+        if (quantity <= 0) {
             throw new CoreException(ErrorType.BAD_REQUEST, "복구할 재고량은 0보다 커야 합니다.");
         }
         
@@ -98,13 +107,6 @@ public class ProductModel extends BaseEntity {
         }
     }
 
-    public boolean hasEnoughStock(BigDecimal quantity) {
-        if (this.stock == null || quantity == null) {
-            return false;
-        }
-        return this.stock.hasEnough(quantity);
-    }
-    
     public void incrementLikeCount(){
         this.LikeCount = this.LikeCount.increment();
     }
@@ -112,8 +114,24 @@ public class ProductModel extends BaseEntity {
     public void decrementLikeCount(){
         this.LikeCount = this.LikeCount.decrement();
     }
-    public boolean isAvailable(){
-        return this.Status.isAvailable() && hasEnoughStock(BigDecimal.ONE);
+
+    public boolean isAvailable() { // 판매 가능한지 여부
+        return this.Status.isAvailable() && hasEnoughStock(1);
+    }
+
+    @Override
+    public String toString() {
+        return "ProductModel{" +
+                "id=" + getId() +
+                ", productName=" + productName.getValue() +
+                ", brandId=" + brandId.getValue() +
+                ", stock=" + stock.getValue() +
+                ", price=" + price.getValue() +
+                ", description=" + description.getValue() +
+                ", imgUrl=" + imgUrl.getValue() +
+                ", Status=" + Status.getValue() +
+                ", LikeCount=" + LikeCount.getValue() +
+                '}';
     }
 
 

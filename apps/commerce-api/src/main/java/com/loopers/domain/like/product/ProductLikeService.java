@@ -6,23 +6,33 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductLikeService {
     
+    private final ProductLikeEventPublisher eventPublisher;
+    
+    public ProductLikeService(ProductLikeEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+    
     public ProductLikeModel addLike(ProductModel product, Long userId) {
         var newLike = ProductLikeModel.create(userId, product.getId());
         product.incrementLikeCount();
+        eventPublisher.publishLikeAdded(ProductLikeEvent.Added.of(userId, product.getId()));
         return newLike;
     }
     
     public void removeLike(ProductModel product, ProductLikeModel existingLike) {
         product.decrementLikeCount();
+        eventPublisher.publishLikeRemoved(ProductLikeEvent.Removed.of(existingLike.getUserId(), product.getId()));
     }
     
     public LikeToggleResult toggleLike(ProductModel product, Long userId, ProductLikeModel existingLike) {
         if (existingLike != null) {
             product.decrementLikeCount();
+            eventPublisher.publishLikeRemoved(ProductLikeEvent.Removed.of(userId, product.getId()));
             return LikeToggleResult.removed(existingLike);
         } else {
             var newLike = ProductLikeModel.create(userId, product.getId());
             product.incrementLikeCount();
+            eventPublisher.publishLikeAdded(ProductLikeEvent.Added.of(userId, product.getId()));
             return LikeToggleResult.added(newLike);
         }
     }

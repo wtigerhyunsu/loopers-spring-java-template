@@ -3,6 +3,8 @@ package com.loopers.domain.like.product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ProductLikeRepository {
@@ -19,4 +21,6 @@ public interface ProductLikeRepository {
     void deleteAll();
     
     long count();
+    
+    Map<Long, Long> countByProductIds(List<Long> productIds);
 }

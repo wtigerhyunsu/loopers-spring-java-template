@@ -1,5 +1,6 @@
 package com.loopers.domain.brand;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 
 public class BrandFixture {
@@ -40,5 +41,21 @@ public class BrandFixture {
     
     public static BrandModel createBrand(String brandName) {
         return createBrandWithName(brandName);
+    }
+    
+    public static BrandModel createBrandWithId(Long id, String brandName) {
+        BrandModel brand = createBrandWithName(brandName);
+        setId(brand, id);
+        return brand;
+    }
+    
+    private static void setId(BrandModel brand, Long id) {
+        try {
+            Field idField = brand.getClass().getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(brand, id);
+        } catch (Exception e) {
+            throw new RuntimeException("테스트용 ID 설정 실패", e);
+        }
     }
 }
