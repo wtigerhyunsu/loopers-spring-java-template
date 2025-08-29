@@ -24,7 +24,7 @@ public class ProductLikeEventListener {
         this.aggregationService = aggregationService;
     }
     
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     @Async
     public void handleLikeAdded(ProductLikeEvent.Added event) {
         String key = "product:like:count:" + event.productId();
@@ -43,7 +43,7 @@ public class ProductLikeEventListener {
         }
     }
     
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     @Async
     public void handleLikeRemoved(ProductLikeEvent.Removed event) {
         String key = "product:like:count:" + event.productId();

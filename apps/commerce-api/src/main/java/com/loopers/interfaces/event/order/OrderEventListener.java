@@ -1,12 +1,13 @@
-package com.loopers.interfaces.event.oreder;
+package com.loopers.interfaces.event.order;
 
 import com.loopers.application.payment.PaymentCommerceService;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.PaymentCommerceEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ public class OrderEventListener {
     private final OrderService orderService;
 
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handlePaymentRequested(PaymentCommerceEvent.Request event) {
         try {
             paymentCommerceService.processPaymentRequest(event, "http://localhost:8080/payment/callback");
@@ -25,7 +26,7 @@ public class OrderEventListener {
     }
     
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handlePaymentCompleted(PaymentCommerceEvent.PaymentCompleted event) {
         try {
             orderService.completePayment(event.orderId());
@@ -35,7 +36,7 @@ public class OrderEventListener {
     }
     
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handlePaymentFailed(PaymentCommerceEvent.PaymentFailed event) {
         try {
             orderService.failPayment(event.orderId(), event.reason());
