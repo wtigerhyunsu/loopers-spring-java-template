@@ -119,7 +119,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public Optional<ProductModel> findByIdAndActive(Long productModelId) {
-        return productJpaRepository.findByIdAndStatus(productModelId, "active");
+        return productJpaRepository.findByIdAndStatus(productModelId, "ACTIVE");
     }
     
     @Override

@@ -14,17 +14,18 @@ import java.util.Optional;
 
 public interface CouponJpaRepository extends JpaRepository<CouponModel, Long> {
     
-    List<CouponModel> findByUserId(CouponUserId userId);
+    @Query("SELECT c FROM CouponModel c WHERE c.userId.userId = :userId")
+    List<CouponModel> findByUserId(@Param("userId") Long userId);
     
-    @Query("SELECT c FROM CouponModel c WHERE c.userId = :userId AND c.used.used = false AND c.expiredAt.expiredAt > CURRENT_TIMESTAMP")
-    List<CouponModel> findUsableCouponsByUserId(@Param("userId") CouponUserId userId);
+    @Query("SELECT c FROM CouponModel c WHERE c.userId.userId = :userId AND c.used.used = false AND c.expiredAt.expiredAt > CURRENT_TIMESTAMP")
+    List<CouponModel> findUsableCouponsByUserId(@Param("userId") Long userId);
     
-    List<CouponModel> findByOrderId(CouponOrderId orderId);
+    @Query("SELECT c FROM CouponModel c WHERE c.orderId.orderId = :orderId")
+    List<CouponModel> findByOrderId(@Param("orderId") Long orderId);
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM CouponModel c WHERE c.id = :id")
     Optional<CouponModel> findByIdForUpdate(@Param("id") Long id);
-
 
     Optional<CouponModel> findByIdAndUserId_UserId(Long couponId, Long userid);
 }

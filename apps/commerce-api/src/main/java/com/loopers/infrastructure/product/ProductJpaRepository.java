@@ -20,7 +20,8 @@ public interface ProductJpaRepository extends JpaRepository<ProductModel, Long> 
     
     List<ProductModel> findByIdIn(List<Long> productIds);
 
-    Optional<ProductModel> findByIdAndStatus(Long productModelId, String active);
+    @Query("SELECT p FROM ProductModel p WHERE p.id = :productModelId AND CAST(p.Status.status AS string) = :status")
+    Optional<ProductModel> findByIdAndStatus(@Param("productModelId") Long productModelId, @Param("status") String status);
     
     @Modifying
     @Query("UPDATE ProductModel p SET p.LikeCount.productLikeCount = :count WHERE p.id = :productId")

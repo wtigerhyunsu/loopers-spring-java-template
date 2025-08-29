@@ -332,8 +332,8 @@ class ProductLikeFacadeTest {
             ProductModel product1 = ProductFixture.createProductWithBrandId(100L, 1L);
             ProductModel product2 = ProductFixture.createProductWithBrandId(200L, 2L);
             
-            BrandModel brand1 = BrandFixture.createBrand("브랜드1");
-            BrandModel brand2 = BrandFixture.createBrand("브랜드2");
+            BrandModel brand1 = BrandFixture.createBrandWithId(1L, "브랜드1");
+            BrandModel brand2 = BrandFixture.createBrandWithId(2L, "브랜드2");
             
             ProductLikeCommand.Request.GetLikedProducts request = 
                     new ProductLikeCommand.Request.GetLikedProducts(userId, page, size);
@@ -406,7 +406,7 @@ class ProductLikeFacadeTest {
             ProductModel product1 = ProductFixture.createProductWithBrandId(100L, 1L);
             // product2는 삭제되어 조회되지 않음
             
-            BrandModel brand1 = BrandFixture.createBrand("브랜드1");
+            BrandModel brand1 = BrandFixture.createBrandWithId(1L, "브랜드1");
             
             ProductLikeCommand.Request.GetLikedProducts request = 
                     new ProductLikeCommand.Request.GetLikedProducts(userId, page, size);

@@ -52,7 +52,7 @@ class SimpleConcurrencyTest {
         product.decreaseStock(1);
 
         assertThat(product.getStatus().getValue()).isEqualTo("OUT_OF_STOCK");
-        assertThat(product.getStock().getValue()).isEqualTo(BigDecimal.ZERO);
+        assertThat(product.getStock().getValue()).isEqualTo(0);
     }
 
     @Test
@@ -72,7 +72,7 @@ class SimpleConcurrencyTest {
         product.restoreStock(5);
 
         assertThat(product.getStatus().getValue()).isEqualTo("ACTIVE");
-        assertThat(product.getStock().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(product.getStock().getValue()).isEqualTo(5);
     }
 
     @Test

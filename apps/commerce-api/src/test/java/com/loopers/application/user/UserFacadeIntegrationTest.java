@@ -1,5 +1,6 @@
 package com.loopers.application.user;
 
+import com.loopers.config.TestConfig;
 import com.loopers.domain.user.UserModel;
 import com.loopers.domain.user.UserFixture;
 import com.loopers.domain.user.UserRepository;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +25,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
+@Import(TestConfig.class)  
+@ActiveProfiles("integration-test")
 public class UserFacadeIntegrationTest {
 
     @Autowired
